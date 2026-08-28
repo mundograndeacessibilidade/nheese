@@ -1,3 +1,9 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Caminhos do Sagrado Greco-Goiano</title>
 <style>
   :root {
     --accent: #4a4a4a;
@@ -22,6 +28,7 @@
   html, body {
     height: 100%;
     margin: 0;
+    background: var(--bg-app);
   }
 
   * { box-sizing: border-box; }
@@ -210,6 +217,8 @@
   .track-item-title { font-weight: 700; font-size: 1em; }
   .track-item-subtitle { font-size: 0.85em; opacity: 0.75; margin-top: 2px; }
 </style>
+</head>
+<body>
 
 <div class="app-wrapper">
 
@@ -413,3 +422,5 @@ setSpeed(speedIndex);
 currentTrack = getTrackFromURL();
 loadTrack(currentTrack, false);
 </script>
+</body>
+</html>
