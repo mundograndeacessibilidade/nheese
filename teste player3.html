@@ -1,0 +1,415 @@
+<style>
+  :root {
+    --accent: #4a4a4a;
+    --bg-card: #111;
+    --bg-app: #2a2a2a;
+    --text-white: #fff;
+    --text-black: #000;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+
+  * { box-sizing: border-box; }
+
+  .app-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 600px;
+    margin: 0 auto;
+    background: var(--bg-app);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  /* ===== HEADER FIXO ===== */
+  .player-header {
+    flex: 0 0 auto;
+    background: var(--bg-card);
+    border-radius: 0 0 20px 20px;
+    padding: 16px 16px 18px;
+  }
+
+  .app-title-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 14px;
+  }
+  .app-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .app-title {
+    color: var(--text-white);
+    font-size: 1.15em;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.25;
+  }
+
+  .control-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .btn-control {
+    flex: 1;
+    border: none;
+    cursor: pointer;
+    border-radius: 12px;
+    background: #eee;
+    color: var(--text-black);
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.85em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 6px;
+    transition: transform 0.08s ease;
+  }
+  .btn-control:active { transform: scale(0.96); }
+
+  .btn-icon-square {
+    width: 34px;
+    height: 34px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1em;
+    color: #fff;
+  }
+
+  .btn-control-primary .btn-icon-square { width: 40px; height: 40px; font-size: 1.3em; }
+
+  .control-row-2 .btn-nav-track {
+    flex: 1;
+    border: none;
+    cursor: pointer;
+    border-radius: 12px;
+    background: #eee;
+    color: var(--text-black);
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.95em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    transition: transform 0.08s ease;
+  }
+  .btn-nav-track:active { transform: scale(0.97); }
+  .btn-nav-track .btn-icon-square { width: 30px; height: 30px; font-size: 1em; }
+  #nextBtn .btn-icon-square { order: 2; }
+
+  .now-playing {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 4px;
+  }
+  .cover-thumb {
+    width: 64px;
+    height: 64px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #333;
+  }
+  .now-playing-info { min-width: 0; flex: 1; }
+  .track-title {
+    color: var(--text-white);
+    font-weight: 700;
+    font-size: 1.05em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .track-subtitle {
+    color: #ccc;
+    font-size: 0.85em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 1px;
+  }
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #e74c3c;
+    flex-shrink: 0;
+  }
+  .status-dot.playing { background: #2ecc71; }
+  .status-text { font-size: 0.82em; font-weight: 700; color: #e74c3c; }
+  .status-text.playing { color: #2ecc71; }
+
+  .speed-btn {
+    margin-left: auto;
+    border: 1px solid #555;
+    background: transparent;
+    color: #fff;
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 0.78em;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .speed-btn:active { transform: scale(0.95); }
+
+  /* ===== LISTA ROLÁVEL ===== */
+  .playlist-scroll {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 16px 16px 32px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .track-item {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-bottom: 8px;
+    color: #fff;
+  }
+  .track-item:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .track-item.active { background: #fff; color: #000; }
+  .track-item-title { font-weight: 700; font-size: 1em; }
+  .track-item-subtitle { font-size: 0.85em; opacity: 0.75; margin-top: 2px; }
+</style>
+
+<div class="app-wrapper">
+
+  <div class="player-header">
+    <span class="sr-only" id="appDesc">Player de audiodescrição com playlist. Os controles ficam fixos no topo; a lista de faixas rola abaixo.</span>
+
+    <div class="app-title-bar">
+      <img class="app-icon" src="" alt="" aria-hidden="true">
+      <h1 class="app-title">Caminhos do Sagrado Greco-Goiano</h1>
+    </div>
+
+    <div class="control-row">
+      <button class="btn-control" id="rewindBtn" aria-label="Voltar 15 segundos">
+        <span class="btn-icon-square" aria-hidden="true">⏪</span>
+        voltar 15s
+      </button>
+      <button class="btn-control btn-control-primary" id="playBtn" aria-pressed="false" aria-label="Reproduzir ou pausar">
+        <span class="btn-icon-square" id="playIcon" aria-hidden="true">▶</span>
+        <span id="playLabel">Reproduzir</span>
+      </button>
+      <button class="btn-control" id="forwardBtn" aria-label="Avançar 15 segundos">
+        <span class="btn-icon-square" aria-hidden="true">⏩</span>
+        avançar 15s
+      </button>
+    </div>
+
+    <div class="control-row control-row-2">
+      <button class="btn-nav-track" id="prevBtn" aria-label="Faixa anterior">
+        <span class="btn-icon-square" aria-hidden="true">⏮</span>
+        Faixa anterior
+      </button>
+      <button class="btn-nav-track" id="nextBtn" aria-label="Próxima faixa">
+        Próxima faixa
+        <span class="btn-icon-square" aria-hidden="true">⏭</span>
+      </button>
+    </div>
+
+    <div class="now-playing">
+      <img class="cover-thumb" id="coverImage" src="" alt="" aria-hidden="true" loading="lazy" decoding="async">
+      <div class="now-playing-info">
+        <div class="track-title" id="trackLabel">—</div>
+        <div class="track-subtitle" id="trackSubtitle"></div>
+        <div class="status-row">
+          <span class="status-dot" id="statusDot" aria-hidden="true"></span>
+          <span class="status-text" id="status" aria-live="polite">Pausado</span>
+          <button class="speed-btn" id="speedBtn" aria-label="Velocidade de reprodução: 1x. Toque para alterar.">1x</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="playlist-scroll" id="playlist" role="list" aria-label="Lista de faixas"></div>
+
+</div>
+
+<script>
+const playlist = [
+  { title: "Texto curatorial",                          subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_2e13aef6c5ca41e884ea478bbb42d646.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_5f651cfd799243f19c15f33485f10441~mv2.png" },
+  { title: "Paulo Desana",                               subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_d1bad34e1e364f229329c310ca5ffb90.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_af86c9d6d6924a2c9d9644252d892061~mv2.png" },
+  { title: "Ziel Karapoto & Olinda Tupinambá",           subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_21a9f37956854125b82d9ee022319cf0.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_6888b0fc76794907a5933672af9cdd0e~mv2.png" },
+  { title: "Vilmone Guarani",                            subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_b5ff9d872c574ce5ba2fd26b70e8b2f5.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_f91af4667da84ef09c06407ba83a3d58~mv2.png" },
+  { title: "Mandacaru Karajá",                           subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_98299c9b0b86487a96be91746f016689.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_dbf598355e594da092c439f448254970~mv2.png" },
+  { title: "Glicéria Tupinambá",                         subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_83b0ac4718004619b9b4801c21f2788a.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_f903efe5ab084d9b93b7430f9367f06a~mv2.png" },
+  { title: "Sioduhi Waíkhʉn",                            subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_94fa8b7f84914289b9b623de3d4f172b.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_849d7e71650347738dccc5644aa10e57~mv2.png" },
+  { title: "Ana Maria Kariri",                           subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_e915b064b8614ed7bb8ff988926bfce5.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_7d59798216ff4dce8b6c907277122861~mv2.png" },
+  { title: "Ypituna Pankararu",                          subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_e5fd762e83d64669bab7ebafc3bed908.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_8f06870da43645f3ae718ccd3640fbce~mv2.png" },
+  { title: "Luakam Anambé",                              subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_561a223eaef443708685e441e24be469.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_408bcc5ae04941e994d7bdeca1c3fa71~mv2.png" },
+  { title: "Mandú",                                      subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_1d731d0c1ebf44ed9948098ad9883a0b.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_e7ee28450e9b4f049e49a9cecab13669~mv2.png" },
+  { title: "Kuenan Mayu",                                subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_3f0a9e5b42d5407f9f473d68a5a48a5a.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_a156107bf5fd472989c35f0c1f8772b1~mv2.png" },
+  { title: "Keyla Palikur",                              subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_cd85439182ce48f3b7a03874f79f32d2.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_a3ccaaccbf2141e8b72974ca1ec88e9f~mv2.png" },
+  { title: "Ficha técnica",                              subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_8f091c8296034f7bafb7b34200b3d2ee.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_2922883410b341f698ff8c72381d87bd~mv2.png" }
+];
+
+const SPEEDS = [0.75, 1, 1.25, 1.5, 2];
+let speedIndex = 1; // começa em 1x
+
+let currentTrack = 0, playing = false;
+const audio        = new Audio();
+const playBtn       = document.getElementById('playBtn');
+const playIcon       = document.getElementById('playIcon');
+const playLabel      = document.getElementById('playLabel');
+const trackLabel      = document.getElementById('trackLabel');
+const trackSubtitle    = document.getElementById('trackSubtitle');
+const statusDot         = document.getElementById('statusDot');
+const status              = document.getElementById('status');
+const cover                = document.getElementById('coverImage');
+const playlistDiv            = document.getElementById('playlist');
+const speedBtn                 = document.getElementById('speedBtn');
+const rewindBtn                  = document.getElementById('rewindBtn');
+const forwardBtn                   = document.getElementById('forwardBtn');
+const prevBtn                        = document.getElementById('prevBtn');
+const nextBtn                          = document.getElementById('nextBtn');
+
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function loadTrack(index, autoplay = true) {
+  const track = playlist[index];
+  audio.src = track.audioUrl;
+  audio.playbackRate = SPEEDS[speedIndex];
+  cover.src = track.coverUrl;
+  trackLabel.textContent = `${pad(index + 1)} - ${track.title}`;
+  trackSubtitle.textContent = track.subtitle || '';
+  playBtn.setAttribute('aria-label', `${track.title} — reproduzir ou pausar`);
+  highlightTrack(index);
+  setPlaying(false);
+  if (autoplay) {
+    audio.play().then(() => setPlaying(true)).catch(() => {});
+  }
+}
+
+function setPlaying(isPlaying) {
+  playing = isPlaying;
+  playBtn.setAttribute('aria-pressed', isPlaying ? 'true' : 'false');
+  playIcon.textContent = isPlaying ? '❚❚' : '▶';
+  playLabel.textContent = isPlaying ? 'Pausar' : 'Reproduzir';
+  status.textContent = isPlaying ? '● Reproduzindo' : '❚❚ Pausado';
+  status.classList.toggle('playing', isPlaying);
+  statusDot.classList.toggle('playing', isPlaying);
+}
+
+function highlightTrack(index) {
+  document.querySelectorAll('.track-item').forEach((item, i) => {
+    item.classList.toggle('active', i === index);
+  });
+}
+
+function setSpeed(index) {
+  speedIndex = ((index % SPEEDS.length) + SPEEDS.length) % SPEEDS.length;
+  const rate = SPEEDS[speedIndex];
+  audio.playbackRate = rate;
+  const label = `${rate}x`;
+  speedBtn.textContent = label;
+  speedBtn.setAttribute('aria-label', `Velocidade de reprodução: ${label}. Toque para alterar.`);
+}
+
+function createPlaylist() {
+  playlist.forEach((track, i) => {
+    const item = document.createElement('div');
+    item.className = 'track-item';
+    item.setAttribute('tabindex', '0');
+    item.setAttribute('role', 'listitem button');
+    item.setAttribute('aria-label', `Faixa ${i + 1}: ${track.title}`);
+    item.innerHTML = `
+      <span class="track-item-title">Faixa ${i + 1}</span>
+      <span class="track-item-subtitle">${track.title}</span>`;
+    item.onclick = () => { currentTrack = i; loadTrack(i); };
+    item.onkeydown = (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { currentTrack = i; loadTrack(i); e.preventDefault(); }
+    };
+    playlistDiv.appendChild(item);
+  });
+}
+
+function getTrackFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  const n = parseInt(params.get('faixa'));
+  if (!isNaN(n) && n >= 1 && n <= playlist.length) return n - 1;
+  return 0;
+}
+
+window.addEventListener('message', (event) => {
+  if (event.data && event.data.faixaIndex !== undefined) {
+    currentTrack = event.data.faixaIndex;
+    loadTrack(currentTrack);
+  }
+});
+
+playBtn.addEventListener('click', () => {
+  if (audio.paused) { audio.play().then(() => setPlaying(true)).catch(() => {}); }
+  else { audio.pause(); setPlaying(false); }
+});
+
+rewindBtn.addEventListener('click', () => {
+  audio.currentTime = Math.max(0, audio.currentTime - 15);
+});
+forwardBtn.addEventListener('click', () => {
+  const dur = isFinite(audio.duration) ? audio.duration : audio.currentTime + 15;
+  audio.currentTime = Math.min(dur, audio.currentTime + 15);
+});
+
+speedBtn.addEventListener('click', () => setSpeed(speedIndex + 1));
+
+prevBtn.onclick = () => {
+  currentTrack = (currentTrack - 1 + playlist.length) % playlist.length;
+  loadTrack(currentTrack);
+};
+nextBtn.onclick = () => {
+  currentTrack = (currentTrack + 1) % playlist.length;
+  loadTrack(currentTrack);
+};
+
+audio.addEventListener('play',  () => setPlaying(true));
+audio.addEventListener('pause', () => setPlaying(false));
+audio.addEventListener('ended', () => {
+  currentTrack = (currentTrack + 1) % playlist.length;
+  loadTrack(currentTrack);
+});
+
+createPlaylist();
+setSpeed(speedIndex);
+currentTrack = getTrackFromURL();
+loadTrack(currentTrack, false);
+</script>
