@@ -83,41 +83,19 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .track-subtitle {
-    color: #ccc;
-    font-size: 0.9em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin-top: 4px;
-  }
   .status-row {
     display: flex;
     align-items: center;
     gap: 8px;
     margin-top: 10px;
   }
-  .status-icon { font-size: 0.9em; }
-  .status-text { font-size: 0.85em; font-weight: 700; }
+  .status-icon { font-size: 0.95em; }
+  .status-text { font-size: 1.05em; font-weight: 700; }
 
   .status-icon.playing,
   .status-text.playing { color: var(--green); }
   .status-icon.paused,
   .status-text.paused { color: var(--red); }
-
-  .speed-btn {
-    margin-left: auto;
-    border: 1px solid #555;
-    background: transparent;
-    color: #fff;
-    border-radius: 20px;
-    padding: 4px 10px;
-    font-size: 0.78em;
-    font-weight: 700;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-  .speed-btn:active { transform: scale(0.95); }
 
   /* ===== CONTROLES PRINCIPAIS: ANTERIOR / PLAY / PRÓXIMA ===== */
   .primary-controls {
@@ -158,14 +136,14 @@
   .play-circle-btn:active { transform: scale(0.95); }
   .play-circle-btn span {
     color: #000;
-    font-size: 1.7em;
+    font-size: 2.3em;
     line-height: 1;
     /* pequeno deslocamento para centralizar visualmente o triângulo de play */
-    margin-left: 4px;
+    margin-left: 5px;
   }
   .play-circle-btn.is-playing span { margin-left: 0; }
 
-  /* ===== AVANÇAR / VOLTAR 15s ===== */
+  /* ===== VOLTAR 15s / VELOCIDADE / AVANÇAR 15s ===== */
   .skip-row {
     display: flex;
     gap: 10px;
@@ -180,16 +158,25 @@
     color: #fff;
     font-family: inherit;
     font-weight: 600;
-    font-size: 0.9em;
+    font-size: 0.95em;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     padding: 12px 6px;
     transition: transform 0.08s ease, background 0.15s ease;
   }
   .btn-skip:active { transform: scale(0.96); background: rgba(255,255,255,0.16); }
-  .btn-skip span.icon { font-size: 1.1em; }
+  .btn-skip span.icon {
+    font-size: 1.3em;
+    line-height: 1;
+  }
+
+  .speed-btn {
+    border: 1px solid rgba(255,255,255,0.35);
+    background: transparent;
+    font-weight: 700;
+  }
 
   /* ===== LISTA ROLÁVEL (RESTANTE DA TELA) ===== */
   .playlist-scroll {
@@ -242,11 +229,9 @@
       <img class="cover-thumb" id="coverImage" src="" alt="" aria-hidden="true" loading="lazy" decoding="async">
       <div class="now-playing-info">
         <div class="track-title" id="trackLabel">—</div>
-        <div class="track-subtitle" id="trackSubtitle"></div>
         <div class="status-row">
           <span class="status-icon" id="statusIcon" aria-hidden="true">❚❚</span>
           <span class="status-text" id="status" aria-live="polite">Pausado</span>
-          <button class="speed-btn" id="speedBtn" aria-label="Velocidade de reprodução: 1x. Toque para alterar.">1x</button>
         </div>
       </div>
     </div>
@@ -261,10 +246,11 @@
 
     <div class="skip-row">
       <button class="btn-skip" id="rewindBtn" aria-label="Voltar 15 segundos">
-        <span class="icon" aria-hidden="true">⏪</span> voltar 15s
+        <span class="icon" aria-hidden="true">«</span>15s
       </button>
+      <button class="btn-skip speed-btn" id="speedBtn" aria-label="Velocidade de reprodução: 1x. Toque para alterar.">1x</button>
       <button class="btn-skip" id="forwardBtn" aria-label="Avançar 15 segundos">
-        avançar 15s <span class="icon" aria-hidden="true">⏩</span>
+        15s<span class="icon" aria-hidden="true">»</span>
       </button>
     </div>
 
@@ -276,31 +262,30 @@
 
 <script>
 const playlist = [
-  { title: "Texto curatorial",                          subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_2e13aef6c5ca41e884ea478bbb42d646.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_5f651cfd799243f19c15f33485f10441~mv2.png" },
-  { title: "Paulo Desana",                               subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_d1bad34e1e364f229329c310ca5ffb90.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_af86c9d6d6924a2c9d9644252d892061~mv2.png" },
-  { title: "Ziel Karapoto & Olinda Tupinambá",           subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_21a9f37956854125b82d9ee022319cf0.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_6888b0fc76794907a5933672af9cdd0e~mv2.png" },
-  { title: "Vilmone Guarani",                            subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_b5ff9d872c574ce5ba2fd26b70e8b2f5.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_f91af4667da84ef09c06407ba83a3d58~mv2.png" },
-  { title: "Mandacaru Karajá",                           subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_98299c9b0b86487a96be91746f016689.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_dbf598355e594da092c439f448254970~mv2.png" },
-  { title: "Glicéria Tupinambá",                         subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_83b0ac4718004619b9b4801c21f2788a.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_f903efe5ab084d9b93b7430f9367f06a~mv2.png" },
-  { title: "Sioduhi Waíkhʉn",                            subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_94fa8b7f84914289b9b623de3d4f172b.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_849d7e71650347738dccc5644aa10e57~mv2.png" },
-  { title: "Ana Maria Kariri",                           subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_e915b064b8614ed7bb8ff988926bfce5.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_7d59798216ff4dce8b6c907277122861~mv2.png" },
-  { title: "Ypituna Pankararu",                          subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_e5fd762e83d64669bab7ebafc3bed908.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_8f06870da43645f3ae718ccd3640fbce~mv2.png" },
-  { title: "Luakam Anambé",                              subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_561a223eaef443708685e441e24be469.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_408bcc5ae04941e994d7bdeca1c3fa71~mv2.png" },
-  { title: "Mandú",                                      subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_1d731d0c1ebf44ed9948098ad9883a0b.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_e7ee28450e9b4f049e49a9cecab13669~mv2.png" },
-  { title: "Kuenan Mayu",                                subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_3f0a9e5b42d5407f9f473d68a5a48a5a.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_a156107bf5fd472989c35f0c1f8772b1~mv2.png" },
-  { title: "Keyla Palikur",                              subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_cd85439182ce48f3b7a03874f79f32d2.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_a3ccaaccbf2141e8b72974ca1ec88e9f~mv2.png" },
-  { title: "Ficha técnica",                              subtitle: "Maria Formosa", audioUrl: "https://static.wixstatic.com/mp3/3fe01e_8f091c8296034f7bafb7b34200b3d2ee.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_2922883410b341f698ff8c72381d87bd~mv2.png" }
+  { title: "Texto curatorial",                          audioUrl: "https://static.wixstatic.com/mp3/3fe01e_2e13aef6c5ca41e884ea478bbb42d646.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_5f651cfd799243f19c15f33485f10441~mv2.png" },
+  { title: "Paulo Desana",                               audioUrl: "https://static.wixstatic.com/mp3/3fe01e_d1bad34e1e364f229329c310ca5ffb90.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_af86c9d6d6924a2c9d9644252d892061~mv2.png" },
+  { title: "Ziel Karapoto & Olinda Tupinambá",           audioUrl: "https://static.wixstatic.com/mp3/3fe01e_21a9f37956854125b82d9ee022319cf0.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_6888b0fc76794907a5933672af9cdd0e~mv2.png" },
+  { title: "Vilmone Guarani",                            audioUrl: "https://static.wixstatic.com/mp3/3fe01e_b5ff9d872c574ce5ba2fd26b70e8b2f5.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_f91af4667da84ef09c06407ba83a3d58~mv2.png" },
+  { title: "Mandacaru Karajá",                           audioUrl: "https://static.wixstatic.com/mp3/3fe01e_98299c9b0b86487a96be91746f016689.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_dbf598355e594da092c439f448254970~mv2.png" },
+  { title: "Glicéria Tupinambá",                         audioUrl: "https://static.wixstatic.com/mp3/3fe01e_83b0ac4718004619b9b4801c21f2788a.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_f903efe5ab084d9b93b7430f9367f06a~mv2.png" },
+  { title: "Sioduhi Waíkhʉn",                            audioUrl: "https://static.wixstatic.com/mp3/3fe01e_94fa8b7f84914289b9b623de3d4f172b.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_849d7e71650347738dccc5644aa10e57~mv2.png" },
+  { title: "Ana Maria Kariri",                           audioUrl: "https://static.wixstatic.com/mp3/3fe01e_e915b064b8614ed7bb8ff988926bfce5.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_7d59798216ff4dce8b6c907277122861~mv2.png" },
+  { title: "Ypituna Pankararu",                          audioUrl: "https://static.wixstatic.com/mp3/3fe01e_e5fd762e83d64669bab7ebafc3bed908.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_8f06870da43645f3ae718ccd3640fbce~mv2.png" },
+  { title: "Luakam Anambé",                              audioUrl: "https://static.wixstatic.com/mp3/3fe01e_561a223eaef443708685e441e24be469.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_408bcc5ae04941e994d7bdeca1c3fa71~mv2.png" },
+  { title: "Mandú",                                      audioUrl: "https://static.wixstatic.com/mp3/3fe01e_1d731d0c1ebf44ed9948098ad9883a0b.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_e7ee28450e9b4f049e49a9cecab13669~mv2.png" },
+  { title: "Kuenan Mayu",                                audioUrl: "https://static.wixstatic.com/mp3/3fe01e_3f0a9e5b42d5407f9f473d68a5a48a5a.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_a156107bf5fd472989c35f0c1f8772b1~mv2.png" },
+  { title: "Keyla Palikur",                              audioUrl: "https://static.wixstatic.com/mp3/3fe01e_cd85439182ce48f3b7a03874f79f32d2.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_a3ccaaccbf2141e8b72974ca1ec88e9f~mv2.png" },
+  { title: "Ficha técnica",                              audioUrl: "https://static.wixstatic.com/mp3/3fe01e_8f091c8296034f7bafb7b34200b3d2ee.mp3", coverUrl: "https://static.wixstatic.com/media/3fe01e_2922883410b341f698ff8c72381d87bd~mv2.png" }
 ];
 
-const SPEEDS = [0.75, 1, 1.25, 1.5, 2];
-let speedIndex = 1; // começa em 1x
+const SPEEDS = [1, 1.5, 2, 0.75];
+let speedIndex = 0; // começa em 1x
 
 let currentTrack = 0, playing = false;
 const audio           = new Audio();
 const playBtn          = document.getElementById('playBtn');
 const playIcon          = document.getElementById('playIcon');
 const trackLabel         = document.getElementById('trackLabel');
-const trackSubtitle       = document.getElementById('trackSubtitle');
 const statusIcon            = document.getElementById('statusIcon');
 const status                  = document.getElementById('status');
 const cover                    = document.getElementById('coverImage');
@@ -327,7 +312,6 @@ function loadTrack(index, autoplay = true) {
   }
 
   trackLabel.textContent = `${pad(index + 1)} - ${track.title}`;
-  trackSubtitle.textContent = track.subtitle || '';
   playBtn.setAttribute('aria-label', `${track.title} — reproduzir ou pausar`);
   highlightTrack(index);
   setPlaying(false);
@@ -364,7 +348,7 @@ function setSpeed(index) {
   speedIndex = ((index % SPEEDS.length) + SPEEDS.length) % SPEEDS.length;
   const rate = SPEEDS[speedIndex];
   audio.playbackRate = rate;
-  const label = `${rate}x`;
+  const label = `${rate}x`.replace('.', ',');
   speedBtn.textContent = label;
   speedBtn.setAttribute('aria-label', `Velocidade de reprodução: ${label}. Toque para alterar.`);
 }
