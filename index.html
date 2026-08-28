@@ -35,27 +35,24 @@
     overflow: hidden;
   }
 
-  /* ===== FAIXA DE TÍTULO (TOPO) ===== */
-  .top-title-bar {
+  /* ===== PAINEL FIXO (TOPO, COLADO NO TETO) ===== */
+  .top-panel {
     flex: 0 0 auto;
-    padding: 12px 16px 8px;
-    text-align: center;
+    background: var(--bg-card);
+    border-radius: 0 0 20px 20px;
+    padding: 14px 16px 22px;
+    display: flex;
+    flex-direction: column;
   }
-  .top-title-bar h1 {
-    margin: 0;
+
+  .exhibition-title {
+    margin: 0 0 10px;
     font-size: 0.9em;
     font-weight: 700;
     color: #fff;
     letter-spacing: 0.03em;
     text-transform: uppercase;
-  }
-
-  /* ===== PAINEL FIXO (LOGO ABAIXO DO TÍTULO) ===== */
-  .top-panel {
-    flex: 0 0 auto;
-    background: var(--bg-card);
-    border-radius: 0 0 20px 20px;
-    padding: 16px 16px 18px;
+    text-align: center;
   }
 
   .now-playing {
@@ -71,8 +68,8 @@
   .cover-wrap.hidden { display: none; }
   .cover-thumb {
     display: block;
-    width: 117px;
-    height: 117px;
+    width: 140px;
+    height: 140px;
     border-radius: 16px;
     object-fit: cover;
     background: #333;
@@ -81,13 +78,13 @@
     position: absolute;
     bottom: 6px;
     right: 6px;
-    width: 26px;
-    height: 26px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    background: rgba(0,0,0,0.75);
+    background: rgba(0,0,0,1);
     color: #fff;
     font-weight: 700;
-    font-size: 0.85em;
+    font-size: 1.25em;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -117,13 +114,22 @@
   .status-icon.paused,
   .status-text.paused { color: var(--red); }
 
+  .time-row {
+    margin-top: 4px;
+    color: #fff;
+    font-weight: 400;
+    font-size: 0.9em;
+    font-variant-numeric: tabular-nums;
+  }
+
   /* ===== CONTROLES PRINCIPAIS: ANTERIOR / PLAY / PRÓXIMA ===== */
   .primary-controls {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 36px;
-    margin-bottom: 16px;
+    margin-top: 32px;
+    margin-bottom: 4px;
   }
 
   .icon-btn {
@@ -179,7 +185,7 @@
     color: #fff;
     font-family: inherit;
     font-weight: 600;
-    font-size: 0.95em;
+    font-size: 17px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -222,13 +228,15 @@
   .track-item.active { background: #fff; color: #000; }
   .track-item-num {
     font-weight: 700;
+    color: #fff;
     font-size: 1.4em;
     opacity: 0.55;
     min-width: 28px;
     text-align: right;
     flex-shrink: 0;
   }
-  .track-item-title { font-weight: 700; font-size: 1.4em; }
+  .track-item.active .track-item-num { color: #000; }
+  .track-item-title { font-weight: 400; font-size: 1.4em; }
 
   .sr-only {
     position: absolute;
@@ -249,11 +257,9 @@
 
   <span class="sr-only" id="appDesc">Player de audiodescrição com playlist. A faixa em reprodução e os controles ficam fixos no topo; a lista de faixas rola abaixo.</span>
 
-  <div class="top-title-bar">
-    <h1>Caminhos do Sagrado Greco-Goiano</h1>
-  </div>
-
   <div class="top-panel">
+
+    <h1 class="exhibition-title">Caminhos do Sagrado Greco-Goiano</h1>
 
     <div class="now-playing">
       <div class="cover-wrap" id="coverWrap">
@@ -266,6 +272,7 @@
           <span class="status-icon" id="statusIcon" aria-hidden="true">❚❚</span>
           <span class="status-text" id="status" aria-live="polite">Pausado</span>
         </div>
+        <div class="time-row" id="timeRow" aria-hidden="true">00:00 / 00:00</div>
       </div>
     </div>
 
@@ -321,6 +328,7 @@ const playIcon          = document.getElementById('playIcon');
 const trackLabel         = document.getElementById('trackLabel');
 const statusIcon            = document.getElementById('statusIcon');
 const status                  = document.getElementById('status');
+const timeRow                  = document.getElementById('timeRow');
 const cover                    = document.getElementById('coverImage');
 const coverWrap                 = document.getElementById('coverWrap');
 const coverBadge                 = document.getElementById('coverBadge');
@@ -331,7 +339,20 @@ const forwardBtn                       = document.getElementById('forwardBtn');
 const prevBtn                            = document.getElementById('prevBtn');
 const nextBtn                              = document.getElementById('nextBtn');
 
-function pad(n) { return String(n).padStart(2, '0'); }
+function pad(n) { return String(Math.floor(n)).padStart(2, '0'); }
+
+function formatTime(seconds) {
+  if (!isFinite(seconds) || seconds < 0) seconds = 0;
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${pad(m)}:${pad(s)}`;
+}
+
+function updateTimeRow() {
+  const current = formatTime(audio.currentTime);
+  const duration = formatTime(audio.duration);
+  timeRow.textContent = `${current} / ${duration}`;
+}
 
 function loadTrack(index, autoplay = true) {
   const track = playlist[index];
@@ -348,9 +369,11 @@ function loadTrack(index, autoplay = true) {
   coverBadge.textContent = index + 1;
 
   trackLabel.textContent = track.title;
+  trackLabel.setAttribute('title', track.title);
   playBtn.setAttribute('aria-label', `${track.title} — reproduzir ou pausar`);
   highlightTrack(index);
   setPlaying(false);
+  updateTimeRow();
   if (autoplay) {
     audio.play().then(() => setPlaying(true)).catch(() => {});
   }
@@ -447,6 +470,8 @@ nextBtn.onclick = () => {
 
 audio.addEventListener('play',  () => setPlaying(true));
 audio.addEventListener('pause', () => setPlaying(false));
+audio.addEventListener('loadedmetadata', updateTimeRow);
+audio.addEventListener('timeupdate', updateTimeRow);
 audio.addEventListener('ended', () => {
   currentTrack = (currentTrack + 1) % playlist.length;
   loadTrack(currentTrack);
