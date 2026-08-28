@@ -11,6 +11,8 @@
     --bg-app: #2a2a2a;
     --text-white: #fff;
     --text-black: #000;
+    --red: #e74c3c;
+    --green: #2ecc71;
   }
 
   * { box-sizing: border-box; }
@@ -33,7 +35,7 @@
     overflow: hidden;
   }
 
-  /* ===== FAIXA DE TÍTULO DISCRETA (TOPO) ===== */
+  /* ===== FAIXA DE TÍTULO (TOPO) ===== */
   .top-title-bar {
     flex: 0 0 auto;
     padding: 12px 16px 8px;
@@ -41,52 +43,30 @@
   }
   .top-title-bar h1 {
     margin: 0;
-    font-size: 0.8em;
-    font-weight: 600;
-    color: #999;
+    font-size: 0.9em;
+    font-weight: 700;
+    color: #fff;
     letter-spacing: 0.03em;
     text-transform: uppercase;
   }
 
-  /* ===== LISTA ROLÁVEL (MEIO) ===== */
-  .playlist-scroll {
-    flex: 1 1 auto;
-    overflow-y: auto;
-    padding: 8px 16px 16px;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .track-item {
-    display: flex;
-    flex-direction: column;
-    padding: 12px 14px;
-    border-radius: 12px;
-    cursor: pointer;
-    margin-bottom: 8px;
-    color: #fff;
-  }
-  .track-item:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .track-item.active { background: #fff; color: #000; }
-  .track-item-title { font-weight: 700; font-size: 1.4em; }
-  .track-item-subtitle { font-size: 1.19em; opacity: 0.75; margin-top: 2px; }
-
-  /* ===== PAINEL FIXO (BASE DA TELA) ===== */
-  .bottom-panel {
+  /* ===== PAINEL FIXO (LOGO ABAIXO DO TÍTULO) ===== */
+  .top-panel {
     flex: 0 0 auto;
     background: var(--bg-card);
-    border-radius: 20px 20px 0 0;
-    padding: 16px 16px calc(14px + env(safe-area-inset-bottom));
+    border-radius: 0 0 20px 20px;
+    padding: 16px 16px 18px;
   }
 
   .now-playing {
     display: flex;
     align-items: center;
     gap: 14px;
-    margin-bottom: 14px;
+    margin-bottom: 18px;
   }
   .cover-thumb {
-    width: 128px;
-    height: 128px;
+    width: 90px;
+    height: 90px;
     border-radius: 12px;
     object-fit: cover;
     flex-shrink: 0;
@@ -97,7 +77,7 @@
   .track-title {
     color: var(--text-white);
     font-weight: 700;
-    font-size: 2.1em;
+    font-size: 1.5em;
     line-height: 1.15;
     white-space: nowrap;
     overflow: hidden;
@@ -115,12 +95,15 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-top: 8px;
+    margin-top: 10px;
   }
-  .status-icon { font-size: 0.9em; color: #ccc; }
-  .status-text { font-size: 0.85em; font-weight: 700; color: #ccc; }
-  .status-text.playing { color: #2ecc71; }
-  .status-icon.playing { color: #2ecc71; }
+  .status-icon { font-size: 0.9em; }
+  .status-text { font-size: 0.85em; font-weight: 700; }
+
+  .status-icon.playing,
+  .status-text.playing { color: var(--green); }
+  .status-icon.paused,
+  .status-text.paused { color: var(--red); }
 
   .speed-btn {
     margin-left: auto;
@@ -136,65 +119,99 @@
   }
   .speed-btn:active { transform: scale(0.95); }
 
-  .control-row {
+  /* ===== CONTROLES PRINCIPAIS: ANTERIOR / PLAY / PRÓXIMA ===== */
+  .primary-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 36px;
+    margin-bottom: 16px;
+  }
+
+  .icon-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.9em;
+    line-height: 1;
+    padding: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .icon-btn:active { transform: scale(0.9); }
+
+  .play-circle-btn {
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    background: #fff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+    flex-shrink: 0;
+  }
+  .play-circle-btn:active { transform: scale(0.95); }
+  .play-circle-btn span {
+    color: #000;
+    font-size: 1.7em;
+    line-height: 1;
+    /* pequeno deslocamento para centralizar visualmente o triângulo de play */
+    margin-left: 4px;
+  }
+  .play-circle-btn.is-playing span { margin-left: 0; }
+
+  /* ===== AVANÇAR / VOLTAR 15s ===== */
+  .skip-row {
     display: flex;
     gap: 10px;
-    margin-bottom: 10px;
   }
 
-  .btn-control {
+  .btn-skip {
     flex: 1;
     border: none;
     cursor: pointer;
     border-radius: 12px;
-    background: #eee;
-    color: var(--text-black);
+    background: rgba(255,255,255,0.08);
+    color: #fff;
     font-family: inherit;
     font-weight: 600;
-    font-size: 0.85em;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 6px;
+    transition: transform 0.08s ease, background 0.15s ease;
+  }
+  .btn-skip:active { transform: scale(0.96); background: rgba(255,255,255,0.16); }
+  .btn-skip span.icon { font-size: 1.1em; }
+
+  /* ===== LISTA ROLÁVEL (RESTANTE DA TELA) ===== */
+  .playlist-scroll {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .track-item {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 10px 6px;
-    transition: transform 0.08s ease;
-  }
-  .btn-control:active { transform: scale(0.96); }
-
-  .btn-icon-square {
-    width: 34px;
-    height: 34px;
-    background: var(--accent);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1em;
+    padding: 12px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-bottom: 8px;
     color: #fff;
   }
-
-  .btn-control-primary .btn-icon-square { width: 40px; height: 40px; font-size: 1.3em; }
-
-  .control-row-2 .btn-nav-track {
-    flex: 1;
-    border: none;
-    cursor: pointer;
-    border-radius: 12px;
-    background: #eee;
-    color: var(--text-black);
-    font-family: inherit;
-    font-weight: 600;
-    font-size: 0.95em;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 14px;
-    transition: transform 0.08s ease;
-  }
-  .btn-nav-track:active { transform: scale(0.97); }
-  .btn-nav-track .btn-icon-square { width: 30px; height: 30px; font-size: 1em; }
-  #nextBtn .btn-icon-square { order: 2; }
+  .track-item:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .track-item.active { background: #fff; color: #000; }
+  .track-item-title { font-weight: 700; font-size: 1.4em; }
+  .track-item-subtitle { font-size: 1.19em; opacity: 0.75; margin-top: 2px; }
 
   .sr-only {
     position: absolute;
@@ -213,15 +230,13 @@
 
 <div class="app-wrapper">
 
-  <span class="sr-only" id="appDesc">Player de audiodescrição com playlist. A lista de faixas rola no meio da tela; a faixa em reprodução e os controles ficam fixos na base.</span>
+  <span class="sr-only" id="appDesc">Player de audiodescrição com playlist. A faixa em reprodução e os controles ficam fixos no topo; a lista de faixas rola abaixo.</span>
 
   <div class="top-title-bar">
     <h1>Caminhos do Sagrado Greco-Goiano</h1>
   </div>
 
-  <div class="playlist-scroll" id="playlist" role="list" aria-label="Lista de faixas"></div>
-
-  <div class="bottom-panel">
+  <div class="top-panel">
 
     <div class="now-playing">
       <img class="cover-thumb" id="coverImage" src="" alt="" aria-hidden="true" loading="lazy" decoding="async">
@@ -236,33 +251,26 @@
       </div>
     </div>
 
-    <div class="control-row">
-      <button class="btn-control" id="rewindBtn" aria-label="Voltar 15 segundos">
-        <span class="btn-icon-square" aria-hidden="true">⏪</span>
-        voltar 15s
+    <div class="primary-controls">
+      <button class="icon-btn" id="prevBtn" aria-label="Faixa anterior">⏮</button>
+      <button class="play-circle-btn" id="playBtn" aria-pressed="false" aria-label="Reproduzir ou pausar">
+        <span id="playIcon" aria-hidden="true">▶</span>
       </button>
-      <button class="btn-control btn-control-primary" id="playBtn" aria-pressed="false" aria-label="Reproduzir ou pausar">
-        <span class="btn-icon-square" id="playIcon" aria-hidden="true">▶</span>
-        <span id="playLabel">Reproduzir</span>
-      </button>
-      <button class="btn-control" id="forwardBtn" aria-label="Avançar 15 segundos">
-        <span class="btn-icon-square" aria-hidden="true">⏩</span>
-        avançar 15s
-      </button>
+      <button class="icon-btn" id="nextBtn" aria-label="Próxima faixa">⏭</button>
     </div>
 
-    <div class="control-row control-row-2">
-      <button class="btn-nav-track" id="prevBtn" aria-label="Faixa anterior">
-        <span class="btn-icon-square" aria-hidden="true">⏮</span>
-        Faixa anterior
+    <div class="skip-row">
+      <button class="btn-skip" id="rewindBtn" aria-label="Voltar 15 segundos">
+        <span class="icon" aria-hidden="true">⏪</span> voltar 15s
       </button>
-      <button class="btn-nav-track" id="nextBtn" aria-label="Próxima faixa">
-        Próxima faixa
-        <span class="btn-icon-square" aria-hidden="true">⏭</span>
+      <button class="btn-skip" id="forwardBtn" aria-label="Avançar 15 segundos">
+        avançar 15s <span class="icon" aria-hidden="true">⏩</span>
       </button>
     </div>
 
   </div>
+
+  <div class="playlist-scroll" id="playlist" role="list" aria-label="Lista de faixas"></div>
 
 </div>
 
@@ -288,21 +296,20 @@ const SPEEDS = [0.75, 1, 1.25, 1.5, 2];
 let speedIndex = 1; // começa em 1x
 
 let currentTrack = 0, playing = false;
-const audio        = new Audio();
-const playBtn       = document.getElementById('playBtn');
-const playIcon       = document.getElementById('playIcon');
-const playLabel      = document.getElementById('playLabel');
-const trackLabel      = document.getElementById('trackLabel');
-const trackSubtitle    = document.getElementById('trackSubtitle');
-const statusIcon         = document.getElementById('statusIcon');
-const status              = document.getElementById('status');
-const cover                = document.getElementById('coverImage');
-const playlistDiv            = document.getElementById('playlist');
-const speedBtn                 = document.getElementById('speedBtn');
-const rewindBtn                  = document.getElementById('rewindBtn');
-const forwardBtn                   = document.getElementById('forwardBtn');
-const prevBtn                        = document.getElementById('prevBtn');
-const nextBtn                          = document.getElementById('nextBtn');
+const audio           = new Audio();
+const playBtn          = document.getElementById('playBtn');
+const playIcon          = document.getElementById('playIcon');
+const trackLabel         = document.getElementById('trackLabel');
+const trackSubtitle       = document.getElementById('trackSubtitle');
+const statusIcon            = document.getElementById('statusIcon');
+const status                  = document.getElementById('status');
+const cover                    = document.getElementById('coverImage');
+const playlistDiv                = document.getElementById('playlist');
+const speedBtn                     = document.getElementById('speedBtn');
+const rewindBtn                      = document.getElementById('rewindBtn');
+const forwardBtn                       = document.getElementById('forwardBtn');
+const prevBtn                            = document.getElementById('prevBtn');
+const nextBtn                              = document.getElementById('nextBtn');
 
 function pad(n) { return String(n).padStart(2, '0'); }
 
@@ -332,12 +339,19 @@ function loadTrack(index, autoplay = true) {
 function setPlaying(isPlaying) {
   playing = isPlaying;
   playBtn.setAttribute('aria-pressed', isPlaying ? 'true' : 'false');
+  playBtn.classList.toggle('is-playing', isPlaying);
+
+  // ícone dentro do botão central: alterna entre play e pause conforme a ação disponível
   playIcon.textContent = isPlaying ? '❚❚' : '▶';
-  playLabel.textContent = isPlaying ? 'Pausar' : 'Reproduzir';
-  statusIcon.textContent = isPlaying ? '❚❚' : '▶';
+
+  // indicador de status: mostra o símbolo que representa o estado atual
+  statusIcon.textContent = isPlaying ? '▶' : '❚❚';
   status.textContent = isPlaying ? 'Reproduzindo' : 'Pausado';
+
   status.classList.toggle('playing', isPlaying);
+  status.classList.toggle('paused', !isPlaying);
   statusIcon.classList.toggle('playing', isPlaying);
+  statusIcon.classList.toggle('paused', !isPlaying);
 }
 
 function highlightTrack(index) {
